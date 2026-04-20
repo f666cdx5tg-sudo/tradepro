@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>TradePro Mobile v3.1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #071120;
+      --bg-2: #0b1730;
+      --panel: #101c36;
+      --panel-2: #142443;
+      --card: #12203b;
+      --line: rgba(255,255,255,.08);
+      --text: #eff4ff;
+      --muted: #9aabc9;
+      --gold: #d2a44b;
+      --teal: #1f9bb6;
+      --green: #36b37e;
+      --red: #d96b6b;
+      --orange: #e5964a;
+      --blue: #5aa6ff;
+      --radius: 18px;
+      --shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #10213d 0%, var(--bg) 48%, #040916 100%); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+    body { min-height: 100vh; }
+    .phone-shell {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border-inline: 1px solid rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .status-bar {
+      padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--muted);
+    }
+    .app-header {
+      padding: 8px 12px 10px;
+      display: grid; grid-template-columns: 68px 1fr auto; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      background: radial-gradient(circle at center, rgba(16,40,98,.55) 0%, rgba(8,19,52,.94) 44%, rgba(4,9,26,.98) 100%);
+      backdrop-filter: blur(18px);
+      position: sticky; top: 0; z-index: 20;
+      box-shadow: inset 0 -1px 0 rgba(255,255,255,.04);
+    }
+    .brand { display: contents; }
+    .logo-wrap {
+      width: 68px; height: 68px; background: #f5f5f7; border-radius: 20px; padding: 7px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.78);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .logo {
+      width: 54px; height: 54px; border-radius: 14px;
+      background: #07102a url('file:152') center/cover no-repeat;
+      border: 1px solid rgba(255,255,255,.10);
+      display: block; flex: 0 0 auto; overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .brand-copy { min-width: 0; align-self:center; }
+    .wordmark { display:flex; align-items:flex-end; gap:1px; line-height:1; margin-bottom:3px; flex-wrap:wrap; }
+    .wordmark .trade { font-size: 20px; font-weight: 900; letter-spacing: .01em; color: #eef3ff; }
+    .wordmark .pro { font-size: 20px; font-weight: 900; letter-spacing: .01em; color: #eb9138; }
+    .brand-copy p { margin: 0; font-size: 8px; color: #b7c5e6; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+    .header-meta { display:flex; flex-direction:column; align-items:flex-end; gap:2px; text-align:right; max-width: 122px; }
+    .header-time { font-size: 15px; font-weight: 900; color: #f5f7ff; line-height:1; white-space: nowrap; }
+    .header-geo { font-size: 9px; color: #d4def7; font-weight: 700; line-height:1.2; }
+    .header-weather { font-size: 9px; color: #f0c46c; font-weight: 700; line-height:1.2; }
+    .header-meta span:first-child{opacity:.88}
+    .sync-pill {
+      border: 1px solid rgba(210,164,75,.35);
+      color: #f6d58d; background: rgba(210,164,75,.14);
+      padding: 5px 8px; border-radius: 999px; font-size: 10px; font-weight: 800;
+    }
+    @media (max-width: 390px) {
+      .app-header { grid-template-columns: 60px 1fr 110px; gap: 8px; }
+      .logo-wrap { width: 60px; height: 60px; border-radius: 18px; padding: 6px; }
+      .logo { width: 48px; height: 48px; border-radius: 12px; }
+      .wordmark .trade, .wordmark .pro { font-size: 18px; }
+      .brand-copy p { font-size: 7px; }
+      .header-time { font-size: 13px; }
+      .header-geo, .header-weather { font-size: 8px; }
+    }
+    .screen { display: none; padding: 18px 18px 112px; }
+    .screen.active { display: block; }
+    .hero-card, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-card { padding: 18px; margin-bottom: 16px; }
+    .hero-top { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; }
+    .eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; color: var(--gold); margin-bottom: 8px; font-weight: 800; }
+    .hero-title { font-size: 25px; line-height: 1.06; letter-spacing:-.02em; margin: 0 0 8px; }
+    .hero-copy { color: var(--muted); font-size: 14px; line-height: 1.58; margin: 0; max-width: 32ch; }
+    .hero-actions, .button-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 16px; }
+    .btn {
+      appearance: none; border: none; border-radius: 14px; min-height: 46px; padding: 0 14px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .btn-primary { background: linear-gradient(180deg, #dcb15b, #b98b37); color: #1c160b; }
+    .btn-secondary { background: rgba(255,255,255,.05); color: var(--text); border: 1px solid var(--line); }
+    .btn-danger { background: rgba(217,107,107,.18); color: #ffc5c5; border: 1px solid rgba(217,107,107,.3); }
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
+    .metric { padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: rgba(255,255,255,.03); }
+    .metric label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 7px; }
+    .metric strong { font-size: 22px; display: block; }
+    .metric span { font-size: 12px; color: var(--muted); }
+    .card { padding: 16px; margin-bottom: 14px; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .card h2 { margin: 0; font-size: 16px; letter-spacing:-.01em; }
+    .subtext { color: var(--muted); font-size: 13px; line-height:1.45; }
+    .list { display: grid; gap: 10px; }
+    .item {
+      padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      display: grid; gap: 8px;
+    }
+    .item-top { display: flex; justify-content: space-between; gap: 10px; align-items: start; }
+    .item h3 { margin: 0; font-size: 15px; letter-spacing:-.01em; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--muted); }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      border: 1px solid transparent;
+    }
+    .badge.green { background: rgba(54,179,126,.16); color: #92f0c4; border-color: rgba(54,179,126,.26); }
+    .badge.orange { background: rgba(229,150,74,.16); color: #ffcf97; border-color: rgba(229,150,74,.26); }
+    .badge.red { background: rgba(217,107,107,.16); color: #ffb1b1; border-color: rgba(217,107,107,.26); }
+    .badge.blue { background: rgba(90,166,255,.16); color: #aaceff; border-color: rgba(90,166,255,.26); }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mini-btn {
+      min-height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.04); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    .field, .select, .search {
+      width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.04); color: var(--text); padding: 0 14px; outline: none;
+    }
+    .field::placeholder, .search::placeholder { color: #8193b3; }
+    textarea.field { min-height: 104px; padding: 14px; resize: vertical; }
+    .form-grid { display: grid; gap: 10px; }
+    .label { font-size: 12px; color: var(--muted); margin: 4px 0 6px; display: block; }
+    .toolbar { display: grid; gap: 10px; margin-bottom: 12px; }
+    .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+    .chip {
+      border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--text);
+      padding: 9px 12px; border-radius: 999px; font-size: 12px; white-space: nowrap; cursor: pointer;
+    }
+    .chip.active { background: rgba(210,164,75,.18); color: #f6d58d; border-color: rgba(210,164,75,.35); }
+    .tabs {
+      position: fixed; left: 50%; transform: translateX(-50%); bottom: 0;
+      width: 100%; max-width: 430px;
+      padding: 10px 14px calc(env(safe-area-inset-bottom, 0px) + 12px);
+      background: rgba(5,10,22,.9); backdrop-filter: blur(18px);
+      border-top: 1px solid var(--line); z-index: 30;
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+    }
+    .tab {
+      min-height: 58px; border-radius: 16px; border: 1px solid transparent;
+      background: transparent; color: var(--muted); display: grid; place-items: center;
+      font-size: 11px; font-weight: 700; gap: 5px; cursor: pointer;
+    }
+    .tab.active { background: rgba(255,255,255,.05); color: var(--text); border-color: rgba(255,255,255,.08); }
+    .tab svg { width: 19px; height: 19px; }
+    .empty { padding: 18px; border-radius: 16px; border: 1px dashed rgba(255,255,255,.12); text-align: center; color: var(--muted); }
+    .detail-view { display: none; }
+    .detail-view.active { display: block; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stack { display: grid; gap: 12px; }
+    .inline { display: flex; gap: 10px; }
+    .inline > * { flex: 1; }
+    .tiny { font-size: 11px; color: var(--muted); }
+    .divider { height: 1px; background: var(--line); margin: 12px 0; }
+    a.fake-link { color: #9fd4ff; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="phone-shell">
+    <div class="status-bar"><span id="clock">9:41</span><span>TradePro Field · Live</span></div>
+
+    <header class="app-header">
+      <div class="brand">
+        <div class="logo-wrap">
+          <div class="logo" aria-hidden="true"></div>
+        </div>
+        <div class="brand-copy">
+          <div class="wordmark"><span class="trade">TRADE</span><span class="pro">PRO</span></div>
+          <p>Project Control System</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="header-time" id="headerTime">3:07:17 PM</div>
+        <div class="header-geo"><span>Location</span> · <span id="geoTag">Bergenfield, NJ</span></div>
+        <div class="header-weather">Weather · <span id="weatherPill">45°F</span> · <span id="weatherText">Drizzle</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="screen active" id="screen-dashboard">
+        <div class="hero-card">
+          <div class="hero-top">
+            <div>
+              <div class="eyebrow">TradePro mobile system</div>
+              <h2 class="hero-title">TradePro field control, built for the job site.</h2>
+              <p class="hero-copy">Run projects, manage crew, track bills, and capture field reports in one clean mobile workspace.</p>
+            </div>
+            <span class="badge orange">Version 3.1</span>
+          </div>
+          <div class="hero-actions" style="grid-template-columns: repeat(2, 1fr);">
+            <button class="btn btn-primary" data-nav="projects">Open Projects</button>
+            <button class="btn btn-secondary" data-nav="projects">Tasks</button>
+            <button class="btn btn-secondary" data-nav="settings">Reports</button>
+            <button class="btn btn-secondary" data-nav="crew">Crew</button>
+          </div>
+        </div>
+
+        <div class="metrics" id="metrics"></div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>TODAY</h2>
+            <span class="subtext">Field snapshot</span>
+          </div>
+          <div class="list" id="todayList"></div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-projects">
+        <div class="card" id="projectFormCard" style="display:none; margin-top:0;">
+          <div class="card-head"><h2 id="projectFormTitle">New Project</h2><button type="button" class="mini-btn" id="cancelProjectBtn" onclick="document.getElementById('projectFormCard').style.display='none';">Cancel</button></div>
+          <div class="form-grid">
+            <div><label class="label">Project name</label><input class="field" id="projectName" /></div>
+            <div><label class="label">Client</label><input class="field" id="projectClient" /></div>
+            <div><label class="label">Address</label><input class="field" id="projectAddress" /></div>
+            <div class="inline">
+              <div><label class="label">Budget</label><input class="field" id="projectBudget" type="number" /></div>
+              <div><label class="label">Status</label><select class="select" id="projectStatus"><option>Active</option><option>Planning</option><option>On Hold</option><option>Closed</option></select></div>
+            </div>
+            <div><label class="label">Notes</label><textarea class="field" id="projectNotes"></textarea></div>
+            <div><label class="label">Status report photos or videos</label><input class="field" id="projectMedia" type="file" accept="image/*,video/*" multiple /></div>
+            <div><label class="label">Markup / annotation notes</label><textarea class="field" id="projectMarkup" placeholder="Describe photo markups, punch points, arrows, circles, or notes"></textarea></div>
+            <button class="btn btn-primary" id="saveProjectBtn">Save Project</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h2>Projects</h2>
+              <div class="subtext">Search, filter, edit, and open live project details.</div>
+            </div>
+            <button type="button" class="btn btn-primary" id="newProjectBtn" onclick="document.getElementById('projectFormCard').style.display='block';document.getElementById('projectFormCard').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('projectName')?.focus(),120);">Add Project</button>
+          </div>
+          <div class="toolbar">
+            <input class="search" id="projectSearch" placeholder="Search projects, client, or address" />
+            <div class="filters" id="projectFilters"></div>
+          </div>
+          <div class="list" id="projectList"></div>
+        </div>
+
+        <div class="card detail-view" id="projectDetail"></div>
+
+        <div class="card" style="display:none;">
+      </section>
+
+      <section class="screen" id="screen-invoices">
+        <div class="card">
+          <div class="card-head">
+            <div><h2>Invoices</h2><div class="subtext">Track paid, pending, and overdue invoices.</div></div>
+            <button type="button" class="btn btn-primary" id="newInvoiceBtn" onclick="(function(){resetInvoiceForm();var c=document.getElementById('invoiceFormCard');c.style.display='block';c.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){document.getElementById('invoiceTitle').focus();},120);})()">Add Invoice</button>
+          </div>
+          <div class="toolbar">
+            <input class="search" id="invoiceSearch" placeholder="Search invoice or client" />
+            <div class="filters" id="invoiceFilters"></div>
+          </div>
+          <div class="list" id="invoiceList"></div>
+        </div>
+
+        <div class="card" id="invoiceFormCard" style="display:none;">
+          <div class="card-head"><h2 id="invoiceFormTitle">New Invoice</h2><button type="button" class="mini-btn" id="cancelInvoiceBtn" onclick="document.getElementById('invoiceFormCard').style.display='none';">Cancel</button></div>
+          <div class="form-grid">
+            <div><label class="label">Invoice title</label><input class="field" id="invoiceTitle" /></div>
+            <div><label class="label">Contract / build value</label><input class="field" id="invoiceContractValue" type="number" /></div>
+            <div class="inline">
+              <div><label class="label">Client</label><input class="field" id="invoiceClient" /></div>
+              <div><label class="label">Amount</label><input class="field" id="invoiceAmount" type="number" /></div>
+            </div>
+            <div class="inline">
+              <div><label class="label">Amount paid</label><input class="field" id="invoicePaid" type="number" placeholder="0" /></div>
+              <div><label class="label">Status</label><select class="select" id="invoiceStatus"><option>Pending</option><option>Paid</option><option>Overdue</option></select></div>
+            </div>
+            <div><label class="label">Due date</label><input class="field" id="invoiceDue" type="date" /></div>
+            <div><label class="label">Payment type</label><select class="select" id="invoicePaymentType"><option>Cash</option><option>Check</option><option>CC</option><option>Credit</option></select></div>
+            <button type="button" class="btn btn-primary" id="saveInvoiceBtn">Save Invoice</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-crew">
+        <div class="card">
+          <div class="card-head">
+            <div><h2>Crew</h2><div class="subtext">Manage field labor, subcontractors, and availability.</div></div>
+            <button class="btn btn-primary" id="newCrewBtn">Add</button>
+          </div>
+          <div class="toolbar">
+            <input class="search" id="crewSearch" placeholder="Search crew or role" />
+          </div>
+          <div class="list" id="crewList"></div>
+        </div>
+
+        <div class="card" id="crewFormCard" style="display:none;">
+          <div class="card-head"><h2 id="crewFormTitle">New Crew Member</h2><button type="button" class="mini-btn" id="cancelCrewBtn" onclick="document.getElementById('crewFormCard').style.display='none';">Cancel</button></div>
+          <div class="form-grid">
+            <div><label class="label">Name</label><input class="field" id="crewName" /></div>
+            <div class="inline">
+              <div><label class="label">Role</label><input class="field" id="crewRole" /></div>
+              <div><label class="label">Phone</label><input class="field" id="crewPhone" /></div>
+            </div>
+            <div><label class="label">Status</label><select class="select" id="crewStatus"><option>Available</option><option>Assigned</option><option>Off</option><option>Subcontractor</option></select></div>
+            <div><label class="label">Subcontractor company</label><input class="field" id="crewCompany" /></div>
+            <div class="inline"><div><label class="label">Lead first name</label><input class="field" id="crewLeadFirst" /></div><div><label class="label">Lead last name</label><input class="field" id="crewLeadLast" /></div></div>
+            <div class="inline"><div><label class="label">Email</label><input class="field" id="crewEmail" /></div><div><label class="label">Phone</label><input class="field" id="crewPhone" /></div></div>
+            <button class="btn btn-primary" id="saveCrewBtn">Save Crew Member</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-settings">
+        <div class="card stack">
+          <div>
+            <h2 style="margin:0 0 6px;">System tools</h2>
+            <p class="subtext" style="margin:0;">Manage data, export builds, reset demo content, and keep the mobile app clean during final production.</p>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-secondary" id="importDataBtn">Import JSON</button>
+            <button class="btn btn-secondary" id="downloadHtmlBtn">Download HTML</button>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-secondary" id="seedBtn">Reset Sample Data</button>
+            <button class="btn btn-danger" id="clearBtn">Clear All Data</button>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <div class="eyebrow">Final phase</div>
+            <h3 style="margin:0 0 8px; font-size:18px;">TradePro Mobile Build Roadmap</h3>
+            <p class="subtext" style="margin:0 0 12px;">Next polish steps focus on workflow depth, media handling, signatures, and sync-ready field records.</p>
+            <div class="pill-row">
+              <span class="badge blue">Routing</span>
+              <span class="badge orange">Photos</span>
+              <span class="badge green">Workflows</span>
+            </div>
+          </div>
+          <p class="tiny">Best results: open on iPhone Safari and save to Home Screen for full-screen field testing.</p>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabs" aria-label="Bottom navigation">
+      <button class="tab active" data-nav="dashboard"><svg viewBox="0 0 24 24" fill="none"><path d="M4 13h6V5H4v8Zm10 6h6V5h-6v14ZM4 19h6v-4H4v4Zm10-8h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></button>
+      <button class="tab" data-nav="projects"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7h18M7 3v4m10-4v4M5 11h14v8H5z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Jobs</span></button>
+      <button class="tab" data-nav="invoices"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3h10l4 4v14H3V3h4Zm3 0v5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bills</span></button>
+      <button class="tab" data-nav="crew"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2m18 0v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Crew</span></button>
+      <button class="tab" data-nav="settings"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm7.4-3.5a7.7 7.7 0 0 0-.06-.94l2.02-1.57-2-3.46-2.46.99a8.14 8.14 0 0 0-1.62-.94l-.38-2.6h-4l-.38 2.6c-.57.21-1.11.52-1.61.93l-2.47-1-2 3.47 2.04 1.58c-.04.31-.06.62-.06.94 0 .32.02.63.06.94L2.44 14.5l2 3.46 2.47-.99c.49.4 1.03.71 1.6.92l.39 2.61h4l.39-2.61c.57-.21 1.11-.52 1.6-.92l2.47.99 2-3.46-2.02-1.56c.04-.31.06-.62.06-.94Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Tools</span></button>
+    </nav>
+  </div>
+
+  <input type="file" id="importFile" accept="application/json" hidden />
+
+  <script>
+    const STORAGE_KEY = 'tradepro-mobile-crud-v3-3';
+    const defaultData = {
+      projects: [
+        {
+          id: crypto.randomUUID(),
+          name: 'Bergenfield Kitchen Remodel',
+          client: 'Robinson Family',
+          address: '22 Columbia Ave, Bergenfield, NJ',
+          budget: 42000,
+          contractValue: 42000,
+          revisedContractValue: 45750,
+          status: 'Active',
+          scope: 'Kitchen remodel, electrical updates, cabinet install, finish corrections.',
+          notes: 'Cabinets approved, electrical rough complete.',
+          markup: 'Circle cracked tile edge near sink.',
+          mediaCount: 3,
+          tasks: [
+            { id: crypto.randomUUID(), title: 'Finish cabinet install', done: false },
+            { id: crypto.randomUUID(), title: 'Inspect sink tile edge', done: true },
+            { id: crypto.randomUUID(), title: 'Schedule final electrical trim', done: false }
+          ],
+          changeOrders: [
+            { id: crypto.randomUUID(), title: 'Add under-cabinet lighting', amount: 1850, scope: 'Install LED strips, transformer, switch leg, and trim finish.', status: 'Approved' },
+            { id: crypto.randomUUID(), title: 'Upgrade island outlets', amount: 1900, scope: 'Revise island power layout and patch finish work.', status: 'Pending' }
+          ]
+        },
+        {
+          id: crypto.randomUUID(),
+          name: 'Hackensack Bathroom Upgrade',
+          client: 'Mendez Residence',
+          address: '61 Fairmount Ave, Hackensack, NJ',
+          budget: 18500,
+          contractValue: 18500,
+          revisedContractValue: 20350,
+          status: 'Planning',
+          scope: 'Bathroom demo, waterproofing, tile, plumbing trim, and vanity install.',
+          notes: 'Waiting on tile delivery.',
+          markup: 'Mark shower niche height before install.',
+          mediaCount: 1,
+          tasks: [
+            { id: crypto.randomUUID(), title: 'Confirm tile delivery date', done: false },
+            { id: crypto.randomUUID(), title: 'Review shower niche layout', done: false }
+          ],
+          changeOrders: [
+            { id: crypto.randomUUID(), title: 'Widen shower niche', amount: 850, scope: 'Revise framing and tile layout for wider niche.', status: 'Pending' },
+            { id: crypto.randomUUID(), title: 'Upgrade vanity top', amount: 1000, scope: 'Change countertop material and install detail.', status: 'Approved' }
+          ]
+        },
+        {
+          id: crypto.randomUUID(),
+          name: 'Teaneck Deck Rebuild',
+          client: 'Harrison LLC',
+          address: '104 Cedar Lane, Teaneck, NJ',
+          budget: 26750,
+          contractValue: 26750,
+          revisedContractValue: 26750,
+          status: 'On Hold',
+          scope: 'Deck demo, framing rebuild, railing install, and permit closeout.',
+          notes: 'Permit revision submitted.',
+          markup: 'Arrow at rear ledger connection.',
+          mediaCount: 2,
+          tasks: [
+            { id: crypto.randomUUID(), title: 'Submit permit revision follow-up', done: false },
+            { id: crypto.randomUUID(), title: 'Confirm ledger fastener spec', done: true }
+          ],
+          changeOrders: []
+        }
+      ],
+      invoices: [
+        { id: crypto.randomUUID(), title: 'Deposit Draw', client: 'Robinson Family', amount: 12000, paid: 12000, status: 'Paid', due: '2026-04-12' },
+        { id: crypto.randomUUID(), title: 'Framing Progress', client: 'Harrison LLC', amount: 6400, paid: 2800, status: 'Pending', due: '2026-04-24' },
+        { id: crypto.randomUUID(), title: 'Electrical Change Order', client: 'Mendez Residence', amount: 1850, paid: 0, status: 'Overdue', due: '2026-04-08' }
+      ],
+      crew: [
+        { id: crypto.randomUUID(), name: 'Andre Miles', role: 'Lead Carpenter', phone: '(201) 555-0131', status: 'Assigned', company: '', leadFirst: '', leadLast: '', email: '' },
+        { id: crypto.randomUUID(), name: 'Corey Dent', role: 'Electrician', phone: '(201) 555-0197', status: 'Available', company: '', leadFirst: '', leadLast: '', email: '' },
+        { id: crypto.randomUUID(), name: 'Luis Vega', role: 'Helper', phone: '(201) 555-0114', status: 'Subcontractor', company: 'Vega Electric LLC', leadFirst: 'Luis', leadLast: 'Vega', email: 'luis@vegaelectric.com' }
+      ]
+    };
+
+    let state = hydrateState(loadState());
+    let projectFilter = 'All';
+    let invoiceFilter = 'All';
+    let editingProjectId = null;
+    let editingInvoiceId = null;
+    let editingCrewId = null;
+    let activeProjectId = null;
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        return saved ? JSON.parse(saved) : structuredClone(defaultData);
+      } catch {
+        return structuredClone(defaultData);
+      }
+    }
+
+    function saveState() {
+      state = hydrateState(state);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function overdueDays(d) { if (!d) return 0; const due = new Date(d + 'T00:00:00'); const now = new Date(); return Math.max(0, Math.floor((now - due)/(1000*60*60*24))); }
+
+    function money(n) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(n || 0));
+    }
+
+    function hydrateState(data) {
+      const next = structuredClone(data);
+      next.projects = (next.projects || []).map(p => ({
+        ...p,
+        contractValue: Number(p.contractValue ?? p.budget ?? 0),
+        revisedContractValue: Number(p.revisedContractValue ?? p.contractValue ?? p.budget ?? 0),
+        scope: p.scope || '',
+        tasks: Array.isArray(p.tasks) ? p.tasks : [],
+        changeOrders: Array.isArray(p.changeOrders) ? p.changeOrders : []
+      }));
+      next.invoices = (next.invoices || []).map(i => ({ ...i, contractValue: Number(i.contractValue || i.buildValue || i.amount || 0), paid: Number(i.paid ?? (i.status === 'Paid' ? (i.contractValue || i.buildValue || i.amount || 0) : 0)), paymentType: i.paymentType || 'Cash' }));
+      next.crew = next.crew || [];
+      return next;
+    }
+
+    function getProjectById(id) { return state.projects.find(p => p.id === id); }
+    function projectTaskStats(project) {
+      const total = (project.tasks || []).length;
+      const done = (project.tasks || []).filter(t => t.done).length;
+      return { total, done, open: Math.max(0, total - done) };
+    }
+    function invoiceBalance(invoice) { return Math.max(0, resolveInvoiceContractValue(invoice) - Number(invoice.paid || 0)); }
+    
+    function resolveInvoiceContractValue(invoice) {
+      const direct = Number(invoice.contractValue || invoice.buildValue || invoice.amount || 0);
+      if (direct > 0) return direct;
+      const linkedProject = state.projects.find(p =>
+        (invoice.projectId && p.id === invoice.projectId) ||
+        (invoice.client && p.client && p.client.toLowerCase() === invoice.client.toLowerCase())
+      );
+      return Number(linkedProject?.revisedContractValue || linkedProject?.contractValue || linkedProject?.budget || invoice.amount || 0);
+    }
+
+function refreshInvoiceStatus(invoice) {
+      const balance = invoiceBalance(invoice);
+      if (balance <= 0) invoice.status = 'Paid';
+      else if (invoice.due && overdueDays(invoice.due) > 0) invoice.status = 'Overdue';
+      else invoice.status = 'Pending';
+    }
+
+    function byStatusClass(status) {
+      const s = String(status).toLowerCase();
+      if (['active', 'paid', 'available'].includes(s)) return 'green';
+      if (['planning', 'pending', 'assigned'].includes(s)) return 'blue';
+      if (['on hold', 'overdue', 'off'].includes(s)) return 'red';
+      return 'orange';
+    }
+
+    function renderMetrics() {
+      const paid = state.invoices.filter(i => i.status === 'Paid').reduce((a,b)=>a+Number(b.amount||0),0);
+      const pending = state.invoices.filter(i => i.status !== 'Paid').reduce((a,b)=>a+Number(b.amount||0),0);
+      const budget = state.projects.reduce((a,b)=>a+Number(b.budget||0),0);
+      const el = document.getElementById('metrics');
+      el.innerHTML = `
+        <div class="metric" role="button" tabindex="0" style="cursor:pointer;" onclick="document.querySelector('[data-nav=projects]').click()"><label>Projects</label><strong>${state.projects.length}</strong><span>Active field jobs</span></div>
+        <div class="metric" role="button" tabindex="0" style="cursor:pointer;" onclick="document.querySelector('[data-nav=crew]').click()"><label>Crew</label><strong>${state.crew.length}</strong><span>Assignable workers</span></div>
+        <div class="metric" role="button" tabindex="0" style="cursor:pointer;" onclick="document.querySelector('[data-nav=invoices]').click()"><label>Paid</label><strong>${money(paid)}</strong><span>Collected</span></div>
+        <div class="metric" role="button" tabindex="0" style="cursor:pointer;" onclick="document.querySelector('[data-nav=invoices]').click()"><label>Open</label><strong>${money(pending)}</strong><span>Outstanding invoices</span></div>
+      `;
+      document.getElementById('todayList').innerHTML = `
+        <div class="item"><div class="item-top"><h3>${state.projects[0]?.name || 'No active jobs'}</h3><span class="badge ${byStatusClass(state.projects[0]?.status || 'Planning')}">${state.projects[0]?.status || 'Planning'}</span></div><div class="meta"><span>${state.projects[0]?.client || 'No client'}</span><span>${state.projects[0]?.address || ''}</span></div></div>
+        <div class="item"><div class="item-top"><h3>Budget tracked</h3><span class="badge orange">${money(budget)}</span></div><div class="meta"><span>${state.projects.length} active projects</span><span>field operations model</span></div></div>
+      `;
+    }
+
+    function renderProjectFilters() {
+      const statuses = ['All', 'Active', 'Planning', 'On Hold', 'Closed'];
+      document.getElementById('projectFilters').innerHTML = statuses.map(s => `<button class="chip ${projectFilter===s?'active':''}" onclick="setProjectFilter('${s.replace(/'/g, "\\'")}')">${s}</button>`).join('');
+    }
+    window.setProjectFilter = (value) => { projectFilter = value; renderProjects(); renderProjectFilters(); };
+
+    function renderProjects() {
+      const q = document.getElementById('projectSearch').value.toLowerCase().trim();
+      const list = state.projects.filter(p => {
+        const matchesQ = [p.name, p.client, p.address, p.notes].join(' ').toLowerCase().includes(q);
+        const matchesF = projectFilter === 'All' || p.status === projectFilter;
+        return matchesQ && matchesF;
+      });
+      const el = document.getElementById('projectList');
+      el.innerHTML = list.length ? list.map(p => `
+        <div class="item">
+          <div class="item-top"><h3>${p.name}</h3><span class="badge ${byStatusClass(p.status)}">${p.status}</span></div>
+          <div class="meta"><span>${p.client}</span><span>${p.address}</span><span>${money(p.revisedContractValue || p.contractValue || p.budget)}</span><span>${projectTaskStats(p).done}/${projectTaskStats(p).total} tasks complete</span></div>
+          <div class="actions">
+            <button class="mini-btn" onclick="openProjectDetail('${p.id}')">Open</button>
+            <button class="mini-btn" onclick="editProject('${p.id}')">Edit</button>
+            <button class="mini-btn" onclick="deleteProject('${p.id}')">Delete</button>
+          </div>
+        </div>`).join('') : '<div class="empty">No projects match your search.</div>';
+    }
+
+    window.openProjectDetail = (id) => {
+      const p = state.projects.find(x => x.id === id); if (!p) return;
+      const el = document.getElementById('projectDetail');
+      el.classList.add('active');
+      activeProjectId = id;
+      const stats = projectTaskStats(p);
+      const changeTotal = (p.changeOrders || []).filter(c => c.status !== 'Rejected').reduce((sum, c) => sum + Number(c.amount || 0), 0);
+      el.classList.add('active');
+      el.innerHTML = `
+        <div class="card-head"><h2>${p.name}</h2><button class="mini-btn" onclick="closeProjectDetail()">Close</button></div>
+        <div class="pill-row"><span class="badge ${byStatusClass(p.status)}">${p.status}</span><span class="badge blue">${money(p.revisedContractValue || p.contractValue || p.budget)}</span><span class="badge orange">${stats.done}/${stats.total || 0} tasks done</span></div>
+        <div class="divider"></div>
+        <div class="stack">
+          <div><div class="label">Client</div><div>${p.client}</div></div>
+          <div><div class="label">Address</div><div>${p.address}</div></div>
+          <div><div class="label">Contract value</div><div>${money(p.contractValue || p.budget)}</div></div>
+          <div><div class="label">Revised contract value</div><div>${money(p.revisedContractValue || p.contractValue || p.budget)}${changeTotal ? ` · includes ${money(changeTotal)} in change orders` : ''}</div></div>
+          <div><div class="label">Project scope</div><div>${p.scope || 'No scope entered yet.'}</div></div>
+          <div><div class="label">Notes</div><div>${p.notes || 'No notes yet.'}</div></div>
+          <div><div class="label">Photos / videos</div><div>${p.mediaCount || 0} attached to this status report</div></div>
+          <div><div class="label">Annotation notes</div><div>${p.markup || 'No markup notes yet.'}</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="card" style="padding:14px;margin:0;background:rgba(255,255,255,.02);">
+          <div class="card-head"><h2>Tasks</h2><button class="mini-btn" onclick="addTaskPrompt('${p.id}')">Add Task</button></div>
+          <div class="list">${stats.total ? p.tasks.map(t => `<label class="item" style="grid-template-columns:auto 1fr auto;align-items:center;gap:10px;"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${p.id}','${t.id}', this.checked)" style="width:18px;height:18px;"><div style="${t.done?'text-decoration:line-through;color:#9aa7c0;':''}">${t.title}</div><button class="mini-btn" onclick="deleteTask('${p.id}','${t.id}')">Delete</button></label>`).join('') : '<div class="empty">No tasks yet. Add the next step and keep moving this project forward.</div>'}</div>
+        </div>
+        <div class="card" style="padding:14px;margin:14px 0 0;background:rgba(255,255,255,.02);">
+          <div class="card-head"><h2>Change orders</h2><button class="mini-btn" onclick="addChangeOrderPrompt('${p.id}')">Add Change Order</button></div>
+          <div class="list">${(p.changeOrders || []).length ? p.changeOrders.map(c => `<div class="item"><div class="item-top"><h3>${c.title}</h3><span class="badge ${byStatusClass(c.status || 'Pending')}">${c.status || 'Pending'}</span></div><div class="meta"><span>${money(c.amount)}</span><span>${c.scope || 'No scope note'}</span></div><div class="actions"><button class="mini-btn" onclick="advanceChangeOrder('${p.id}','${c.id}')">Update</button><button class="mini-btn" onclick="deleteChangeOrder('${p.id}','${c.id}')">Delete</button></div></div>`).join('') : '<div class="empty">No change orders yet.</div>'}</div>
+        </div>
+      `;
+    };
+    window.closeProjectDetail = () => { activeProjectId = null; document.getElementById('projectDetail').classList.remove('active'); };
+    window.deleteProject = (id) => { if (confirm('Delete this project?')) { state.projects = state.projects.filter(p => p.id !== id); saveState(); } };
+    window.editProject = (id) => {
+      const p = state.projects.find(x => x.id === id); if (!p) return;
+      editingProjectId = id;
+      document.getElementById('projectFormTitle').textContent = 'Edit Project';
+      document.getElementById('projectName').value = p.name;
+      document.getElementById('projectClient').value = p.client;
+      document.getElementById('projectAddress').value = p.address;
+      document.getElementById('projectBudget').value = p.budget;
+      document.getElementById('projectContractValue').value = p.contractValue || p.budget;
+      document.getElementById('projectScope').value = p.scope || ''; 
+      document.getElementById('projectStatus').value = p.status;
+      document.getElementById('projectNotes').value = p.notes;
+      document.getElementById('projectFormCard').style.display = 'block';
+    };
+
+    function renderInvoiceFilters() {
+      const statuses = ['All', 'Paid', 'Pending', 'Overdue'];
+      document.getElementById('invoiceFilters').innerHTML = statuses.map(s => `<button class="chip ${invoiceFilter===s?'active':''}" onclick="setInvoiceFilter('${s}')">${s}</button>`).join('');
+    }
+    window.setInvoiceFilter = (value) => { invoiceFilter = value; renderInvoices(); renderInvoiceFilters(); };
+
+    function renderInvoices() {
+      const q = document.getElementById('invoiceSearch').value.toLowerCase().trim();
+      const list = state.invoices.filter(i => {
+        const matchesQ = [i.title, i.client, i.status].join(' ').toLowerCase().includes(q);
+        const matchesF = invoiceFilter === 'All' || i.status === invoiceFilter;
+        return matchesQ && matchesF;
+      });
+      const el = document.getElementById('invoiceList');
+      el.innerHTML = list.length ? list.map(i => `
+        <div class="item">
+          <div class="item-top"><h3>${i.title}</h3><span class="badge ${byStatusClass(i.status)}">${i.status}</span></div>
+          <div class="meta"><span>${i.client}</span><span>${money(i.amount)} total</span><span>${money(i.paid || 0)} paid</span><span>${money(invoiceBalance(i))} balance</span><span style="color:${i.status==='Overdue' ? '#ff8e8e' : 'inherit'}; font-weight:${i.status==='Overdue' ? '700' : '500'};">${i.status==='Overdue' ? '● ' : ''}Due ${i.due || 'TBD'}${i.status==='Overdue' ? ' · ' + overdueDays(i.due) + ' days overdue' : ''}</span></div>
+          <div class="actions">
+            <button class="mini-btn" onclick="editInvoice('${i.id}')">Edit</button><button class="mini-btn" onclick="recordPayment('${i.id}')">Payment</button>
+            <button class="mini-btn" onclick="deleteInvoice('${i.id}')">Delete</button>
+          </div>
+        </div>`).join('') : '<div class="empty">No invoices match your search.</div>';
+    }
+    window.deleteInvoice = (id) => { if (!confirm('Delete this invoice?')) return; state.invoices = state.invoices.filter(i => i.id !== id); saveState(); renderInvoices(); renderMetrics(); };
+    window.editInvoice = (id) => {
+      const i = state.invoices.find(x => x.id === id); if (!i) return;
+      editingInvoiceId = id;
+      document.getElementById('invoiceFormTitle').textContent = 'Edit Invoice';
+      document.getElementById('invoiceTitle').value = i.title;
+      document.getElementById('invoiceClient').value = i.client;
+      document.getElementById('invoiceAmount').value = i.amount;
+      document.getElementById('invoiceContractValue').value = resolveInvoiceContractValue(i);
+      document.getElementById('invoicePaid').value = i.paid || 0;
+      document.getElementById('invoiceStatus').value = i.status;
+      document.getElementById('invoiceDue').value = i.due || '';
+      document.getElementById('invoicePaymentType').value = i.paymentType || 'Cash';
+      const card = document.getElementById('invoiceFormCard');
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => document.getElementById('invoiceTitle')?.focus(), 120);
+    };
+
+    
+    window.toggleTask = (projectId, taskId, done) => {
+      const p = getProjectById(projectId); if (!p) return;
+      const task = (p.tasks || []).find(t => t.id === taskId); if (!task) return;
+      task.done = !!done;
+      if ((p.tasks || []).length && p.tasks.every(t => t.done) && p.status !== 'Closed') p.status = 'Completed';
+      else if (p.status === 'Completed' && p.tasks.some(t => !t.done)) p.status = 'Active';
+      saveState();
+      if (activeProjectId === projectId) openProjectDetail(projectId);
+    };
+    window.addTaskPrompt = (projectId) => {
+      const title = prompt('Add task');
+      if (!title) return;
+      const p = getProjectById(projectId); if (!p) return;
+      p.tasks = p.tasks || [];
+      p.tasks.unshift({ id: crypto.randomUUID(), title: title.trim(), done: false });
+      if (p.status === 'Completed') p.status = 'Active';
+      saveState();
+      openProjectDetail(projectId);
+    };
+    window.deleteTask = (projectId, taskId) => {
+      const p = getProjectById(projectId); if (!p) return;
+      p.tasks = (p.tasks || []).filter(t => t.id !== taskId);
+      saveState();
+      openProjectDetail(projectId);
+    };
+    window.addChangeOrderPrompt = (projectId) => {
+      const title = prompt('Change order title'); if (!title) return;
+      const amount = Number(prompt('Change order amount', '0') || 0);
+      const scope = prompt('Scope change details', '');
+      const p = getProjectById(projectId); if (!p) return;
+      p.changeOrders = p.changeOrders || [];
+      p.changeOrders.unshift({ id: crypto.randomUUID(), title: title.trim(), amount, scope: scope || '', status: 'Pending' });
+      p.revisedContractValue = Number(p.contractValue || p.budget || 0) + (p.changeOrders || []).filter(c => c.status !== 'Rejected').reduce((sum, c) => sum + Number(c.amount || 0), 0);
+      saveState();
+      openProjectDetail(projectId);
+    };
+    window.advanceChangeOrder = (projectId, changeOrderId) => {
+      const p = getProjectById(projectId); if (!p) return;
+      const order = (p.changeOrders || []).find(c => c.id === changeOrderId); if (!order) return;
+      const flow = ['Pending', 'Approved', 'Completed'];
+      order.status = flow[Math.min(flow.indexOf(order.status) + 1, flow.length - 1)] || 'Approved';
+      p.revisedContractValue = Number(p.contractValue || p.budget || 0) + (p.changeOrders || []).filter(c => c.status !== 'Rejected').reduce((sum, c) => sum + Number(c.amount || 0), 0);
+      saveState();
+      openProjectDetail(projectId);
+    };
+    window.deleteChangeOrder = (projectId, changeOrderId) => {
+      const p = getProjectById(projectId); if (!p) return;
+      p.changeOrders = (p.changeOrders || []).filter(c => c.id !== changeOrderId);
+      p.revisedContractValue = Number(p.contractValue || p.budget || 0) + (p.changeOrders || []).filter(c => c.status !== 'Rejected').reduce((sum, c) => sum + Number(c.amount || 0), 0);
+      saveState();
+      openProjectDetail(projectId);
+    };
+
+    
+    window.recordPayment = (id) => {
+      const i = state.invoices.find(x => x.id === id); if (!i) return;
+      const amount = Number(prompt('Enter payment amount', String(invoiceBalance(i))) || 0);
+      if (!amount) return;
+      i.paid = Number(i.paid || 0) + amount;
+refreshInvoiceStatus(i);
+      saveState();
+      saveState();
+    };
+
+    function renderCrew() {
+      const q = document.getElementById('crewSearch').value.toLowerCase().trim();
+      const list = state.crew.filter(c => [c.name, c.role, c.status, c.phone].join(' ').toLowerCase().includes(q));
+      const el = document.getElementById('crewList');
+      el.innerHTML = list.length ? list.map(c => `
+        <div class="item">
+          <div class="item-top"><h3>${c.name}</h3><span class="badge ${byStatusClass(c.status)}">${c.status}</span></div>
+          <div class="meta"><span>${c.role}</span><span>${c.company || c.phone}</span><span>${c.leadFirst ? c.leadFirst + ' ' + c.leadLast : ''}</span><span>${c.email || ''}</span></div>
+          <div class="actions">
+            <button class="mini-btn" onclick="editCrew('${c.id}')">Edit</button>
+            <button class="mini-btn" onclick="deleteCrew('${c.id}')">Delete</button>
+          </div>
+        </div>`).join('') : '<div class="empty">No crew match your search.</div>';
+    }
+    window.deleteCrew = (id) => { if (confirm('Delete this crew member?')) { state.crew = state.crew.filter(c => c.id !== id); saveState(); } };
+    window.editCrew = (id) => {
+      const c = state.crew.find(x => x.id === id); if (!c) return;
+      editingCrewId = id;
+      document.getElementById('crewFormTitle').textContent = 'Edit Crew Member';
+      document.getElementById('crewName').value = c.name;
+      document.getElementById('crewRole').value = c.role;
+      document.getElementById('crewPhone').value = c.phone;
+      document.getElementById('crewStatus').value = c.status;
+      document.getElementById('crewCompany').value = c.company || '';
+      document.getElementById('crewLeadFirst').value = c.leadFirst || '';
+      document.getElementById('crewLeadLast').value = c.leadLast || '';
+      document.getElementById('crewEmail').value = c.email || ''; 
+      document.getElementById('crewFormCard').style.display = 'block';
+    };
+
+    
+    window.quickAdd = (type) => {
+      if (type === 'project') {
+        document.querySelector('[data-nav=projects]').click();
+        resetProjectForm();
+        document.getElementById('projectFormCard').style.display = 'block';
+        document.getElementById('projectFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (type === 'invoice') {
+        document.querySelector('[data-nav=invoices]').click();
+        resetInvoiceForm();
+        document.getElementById('invoiceFormCard').style.display = 'block';
+        document.getElementById('invoiceFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (type === 'crew') {
+        document.querySelector('[data-nav=crew]').click();
+        resetCrewForm();
+        document.getElementById('crewFormCard').style.display = 'block';
+        document.getElementById('crewFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (type === 'task') {
+        const active = state.projects.find(p => p.status === 'Active') || state.projects[0];
+        if (!active) return quickAdd('project');
+        document.querySelector('[data-nav=projects]').click();
+        openProjectDetail(active.id);
+        setTimeout(() => addTaskPrompt(active.id), 120);
+        return;
+      }
+      if (type === 'report') {
+        const active = state.projects.find(p => p.status === 'Active') || state.projects[0];
+        if (!active) return quickAdd('project');
+        document.querySelector('[data-nav=projects]').click();
+        editProject(active.id);
+        setTimeout(() => document.getElementById('projectMedia').scrollIntoView({ behavior: 'smooth', block: 'center' }), 120);
+      }
+    };
+    window.openAddForCurrentScreen = () => {
+      const current = document.querySelector('.tab.active')?.dataset.nav || 'dashboard';
+      if (current === 'dashboard') return quickAdd('project');
+      if (current === 'projects') return quickAdd('project');
+      if (current === 'invoices') return quickAdd('invoice');
+      if (current === 'crew') return quickAdd('crew');
+      if (current === 'settings') return document.getElementById('importDataBtn').click();
+    };
+
+function renderAll() {
+      renderMetrics();
+      renderProjectFilters();
+      renderProjects();
+      renderInvoiceFilters();
+      renderInvoices();
+      renderCrew();
+    }
+
+    function resetProjectForm() {
+      editingProjectId = null;
+      document.getElementById('projectFormTitle').textContent = 'New Project';
+      ['projectName','projectClient','projectAddress','projectBudget','projectContractValue','projectScope','projectNotes','projectMarkup'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('projectStatus').value = 'Active';
+      document.getElementById('projectMedia').value = ''; 
+      document.getElementById('projectFormCard').style.display = 'none';
+    }
+    function resetInvoiceForm() {
+      editingInvoiceId = null;
+      document.getElementById('invoiceFormTitle').textContent = 'New Invoice';
+      ['invoiceTitle','invoiceClient','invoiceAmount','invoiceContractValue','invoiceDue','invoicePaid'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('invoiceStatus').value = 'Pending';
+      document.getElementById('invoicePaymentType').value = 'Cash';
+      document.getElementById('invoiceFormCard').style.display = 'none';
+    }
+    function resetCrewForm() {
+      editingCrewId = null;
+      document.getElementById('crewFormTitle').textContent = 'New Crew Member';
+      ['crewName','crewRole','crewPhone','crewCompany','crewLeadFirst','crewLeadLast','crewEmail'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('crewStatus').value = 'Available';
+      document.getElementById('crewFormCard').style.display = 'none';
+    }
+
+    document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', () => {
+      const target = btn.dataset.nav;
+      document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === `screen-${target}`));
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.nav === target));
+      if (target !== 'projects') closeProjectDetail();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }));
+
+    document.getElementById('projectSearch').addEventListener('input', renderProjects);
+    document.getElementById('invoiceSearch').addEventListener('input', renderInvoices);
+    document.getElementById('crewSearch').addEventListener('input', renderCrew);
+
+    const _newProjectBtn = document.getElementById('newProjectBtn');
+    if (_newProjectBtn) {
+      _newProjectBtn.addEventListener('click', () => {
+        resetProjectForm();
+        const card = document.getElementById('projectFormCard');
+        card.style.display = 'block';
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const first = document.getElementById('projectName');
+        if (first) setTimeout(() => first.focus(), 180);
+      });
+    }
+    document.getElementById('cancelProjectBtn').addEventListener('click', resetProjectForm);
+    document.getElementById('saveProjectBtn').addEventListener('click', () => {
+      const payload = {
+        id: editingProjectId || crypto.randomUUID(),
+        name: document.getElementById('projectName').value.trim(),
+        client: document.getElementById('projectClient').value.trim(),
+        address: document.getElementById('projectAddress').value.trim(),
+        budget: Number(document.getElementById('projectBudget').value || 0),
+        contractValue: Number(document.getElementById('projectContractValue').value || document.getElementById('projectBudget').value || 0),
+        status: document.getElementById('projectStatus').value,
+        scope: document.getElementById('projectScope').value.trim(),
+        notes: document.getElementById('projectNotes').value.trim(),
+        markup: document.getElementById('projectMarkup').value.trim(),
+        mediaCount: document.getElementById('projectMedia').files.length
+      };
+      if (!payload.name) return alert('Project name is required.');
+      if (editingProjectId) state.projects = state.projects.map(p => p.id === editingProjectId ? payload : p); else state.projects.unshift(payload);
+      resetProjectForm(); saveState();
+    });
+
+    document.getElementById('newInvoiceBtn').addEventListener('click', () => { resetInvoiceForm(); const card = document.getElementById('invoiceFormCard'); card.style.display = 'block'; card.scrollIntoView({ behavior: 'smooth', block: 'start' }); setTimeout(() => document.getElementById('invoiceTitle')?.focus(), 120); });
+    document.getElementById('cancelInvoiceBtn').addEventListener('click', resetInvoiceForm);
+    document.getElementById('saveInvoiceBtn').addEventListener('click', () => {
+      const payload = {
+        id: editingInvoiceId || crypto.randomUUID(),
+        title: document.getElementById('invoiceTitle').value.trim(),
+        client: document.getElementById('invoiceClient').value.trim(),
+        amount: Number(document.getElementById('invoiceAmount').value || document.getElementById('invoiceContractValue').value || 0),
+        contractValue: Number(document.getElementById('invoiceContractValue').value || document.getElementById('invoiceAmount').value || 0),
+        paid: Number(document.getElementById('invoicePaid').value || 0),
+        status: document.getElementById('invoiceStatus').value,
+        due: document.getElementById('invoiceDue').value,
+        paymentType: document.getElementById('invoicePaymentType').value
+      };
+      if (!payload.title) return alert('Invoice title is required.');
+      if (editingInvoiceId) state.invoices = state.invoices.map(i => i.id === editingInvoiceId ? payload : i); else state.invoices.unshift(payload);
+      resetInvoiceForm(); saveState();
+    });
+
+    document.getElementById('newCrewBtn').addEventListener('click', () => { resetCrewForm(); document.getElementById('crewFormCard').style.display = 'block'; document.getElementById('crewFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    document.getElementById('cancelCrewBtn').addEventListener('click', resetCrewForm);
+    document.getElementById('saveCrewBtn').addEventListener('click', () => {
+      const payload = {
+        id: editingCrewId || crypto.randomUUID(),
+        name: document.getElementById('crewName').value.trim(),
+        role: document.getElementById('crewRole').value.trim(),
+        phone: document.getElementById('crewPhone').value.trim(),
+        status: document.getElementById('crewStatus').value,
+        company: document.getElementById('crewCompany').value.trim(),
+        leadFirst: document.getElementById('crewLeadFirst').value.trim(),
+        leadLast: document.getElementById('crewLeadLast').value.trim(),
+        email: document.getElementById('crewEmail').value.trim()
+      };
+      if (!payload.name) return alert('Crew name is required.');
+      if (editingCrewId) state.crew = state.crew.map(c => c.id === editingCrewId ? payload : c); else state.crew.unshift(payload);
+      resetCrewForm(); saveState();
+    });
+
+    document.getElementById('seedBtn').addEventListener('click', () => { if (confirm('Reset sample data?')) { state = structuredClone(defaultData); saveState(); } });
+    document.getElementById('clearBtn').addEventListener('click', () => { if (confirm('Clear all saved data?')) { localStorage.removeItem(STORAGE_KEY); state = structuredClone(defaultData); renderAll(); } });
+
+    document.getElementById('weatherPill').addEventListener('click', exportJSON);
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'tradepro-mobile-data.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('importDataBtn').addEventListener('click', () => document.getElementById('importFile').click());
+    document.getElementById('importFile').addEventListener('change', async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const text = await file.text();
+      try {
+        const parsed = JSON.parse(text);
+        if (!parsed.projects || !parsed.invoices || !parsed.crew) throw new Error();
+        state = parsed; saveState(); alert('Data imported.');
+      } catch { alert('Invalid JSON file.'); }
+      e.target.value = '';
+    });
+
+    document.getElementById('downloadHtmlBtn').addEventListener('click', async () => {
+      const html = document.documentElement.outerHTML;
+      const blob = new Blob(['<!DOCTYPE html>\n' + html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'tradepro-mobile-v3-1.html';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    function updateClock() {
+      const now = new Date();
+      const stamp = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      document.getElementById('clock').textContent = stamp;
+      const headerTime = document.getElementById('headerTime');
+      if (headerTime) headerTime.textContent = stamp;
+    }
+    async function setGeoTag() {
+      const weatherText = document.getElementById('weatherText');
+      const weatherPill = document.getElementById('weatherPill');
+      if (weatherText) weatherText.textContent = 'Drizzle';
+      if (weatherPill) weatherPill.textContent = '45°F';
+      const geo = document.getElementById('geoTag');
+      if (!navigator.geolocation) { geo.textContent = 'Location unavailable'; return; }
+      navigator.geolocation.getCurrentPosition(async pos => {
+        try {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+          const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+          const data = await res.json();
+          const a = data.address || {};
+          const locality = a.city || a.town || a.village || a.hamlet || a.suburb || a.county;
+          const region = a.state || a.region || '';
+          geo.textContent = locality ? `${locality}${region ? ', ' + region : ''}` : 'Current location';
+        } catch {
+          geo.textContent = 'Current location';
+        }
+      }, () => { geo.textContent = 'Location permission off'; }, { enableHighAccuracy: false, timeout: 5000 });
+    }
+    updateClock(); setInterval(updateClock, 1000 * 30); setGeoTag();
+
+    renderAll();
+  </script>
+</body>
+</html>
