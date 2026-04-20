@@ -131,8 +131,8 @@
               <div style="background:#000; border-radius:12px; overflow:hidden; position:relative; touch-action:none; min-height:200px;">
                 <canvas id="markupCanvas" style="width:100%; display:block; cursor:crosshair;"></canvas>
               </div>
-              <div class="markup-toolbox" style="display:flex; gap:10px; margin-top:10px; justify-content:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:20px; flex-wrap:wrap;">
-                <button class="mini-btn tool active" id="tool-pen" onclick="setMarkupTool('pen')" title="Freehand"><i class="fas fa-pen"></i></button>
+mousedown
+              <button class="mini-btn tool active" id="tool-pen" onclick="setMarkupTool('pen')" title="Freehand"><i class="fas fa-pen"></i></button>
                 <button class="mini-btn tool" id="tool-arrow" onclick="setMarkupTool('arrow')" title="Arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
                 <button class="mini-btn tool" id="tool-rect" onclick="setMarkupTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
                 <button class="mini-btn tool" id="tool-circle" onclick="setMarkupTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
@@ -229,13 +229,11 @@
       currentTool = tool;
       document.querySelectorAll('.markup-toolbox .tool').forEach(t => t.classList.remove('active'));
       document.getElementById('tool-' + tool).classList.add('active');
-      canvas.style.cursor = tool === 'move' ? 'move' : 'crosshair';
+        canvas.style.cursor = tool === 'move' ? 'move' : tool === 'eraser' ? 'pointer' : 'crosshair';
     }
 
     function loadPhotoForMarkup(e) {
       const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
       reader.onload = (f) => {
         bgImage.onload = () => {
           document.getElementById('markupContainer').style.display = 'block';
@@ -315,6 +313,12 @@
         selectedShape = null;
         tempShape = { type: currentTool, x: startX, y: startY, x2: startX, y2: startY, color: document.getElementById('markupColor').value, points: [{x: startX, y: startY}] };
       }
+          } else if (currentTool === 'eraser') {
+            selectedShape = findHit(startX, startY);
+            if (selectedShape) {
+                      markups = markups.filter(m => m !== selectedShape);
+                      drawAll();
+                    }
       drawAll();
     });
 
