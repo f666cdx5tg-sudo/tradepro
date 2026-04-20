@@ -49,7 +49,10 @@
     .markup-toolbox .mini-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
     .item { padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); margin-bottom: 10px; }
     .divider { height: 1px; background: var(--line); margin: 12px 0; }
-  </style>
+  60
+    200
+    210
+    
 </head>
 <body>
   <div class="phone-shell">
@@ -486,5 +489,15 @@ mousedown
       document.getElementById('headerTime').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }, 1000);
   </script>
+      
+  <!-- Bottom Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-nav="dashboard"><i class="fas fa-th"></i><br><span>Home</span></button>
+    <button class="tab" data-nav="jobs"><i class="fas fa-briefcase"></i><br><span>Jobs</span></button>
+    <button class="tab" data-nav="invoices"><i class="fas fa-file-invoice-dollar"></i><br><span>Bills</span></button>
+    <button class="tab" data-nav="crew"><i class="fas fa-users"></i><br><span>Crew</span></button>
+    <button class="tab" data-nav="tools"><i class="fas fa-wrench"></i><br><span>Tools</span></button>
+  </div>
+</div>
 </body>
 </html>
