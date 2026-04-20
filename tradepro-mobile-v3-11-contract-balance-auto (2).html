@@ -143,6 +143,7 @@ mousedown
 
             <label class="label" style="margin-top:10px;">Annotation Notes</label>
             <textarea class="field" id="projectMarkup" placeholder="e.g., Circle crack at corner" style="min-height:60px;"></textarea>
+                        <button class="mini-btn tool" id="tool-eraser" onclick="setMarkupTool('eraser')"><i class="fas fa-eraser"></i></button>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
               <button class="btn btn-secondary" id="cancelProjectBtn">Cancel</button>
@@ -261,8 +262,6 @@ mousedown
 
     function loadPhotoForMarkup(e) {
       const file = e.target.files[0];
-      reader.onload = (f) => {
-        bgImage.onload = () => {
           document.getElementById('markupContainer').style.display = 'block';
           const ratio = bgImage.height / bgImage.width;
           canvas.width = canvas.parentElement.offsetWidth;
@@ -336,6 +335,13 @@ mousedown
           canvas.style.cursor = 'grabbing';
         }
       } else {
+          } else if (currentTool === 'eraser') {
+            selectedShape = findHit(startX, startY);
+            if (selectedShape) {
+                    markups = markups.filter(m => m !== selectedShape);
+                    selectedShape = null;
+                    drawAll();
+                  }
         isDrawing = true;
         selectedShape = null;
         tempShape = { type: currentTool, x: startX, y: startY, x2: startX, y2: startY, color: document.getElementById('markupColor').value, points: [{x: startX, y: startY}] };
