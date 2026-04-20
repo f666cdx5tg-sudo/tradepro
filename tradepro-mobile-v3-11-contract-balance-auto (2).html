@@ -11,7 +11,7 @@
   <style>
     :root { --bg: #071120; --bg-2: #0b1730; --panel: #101c36; --panel-2: #142443; --card: #12203b; --line: rgba(255,255,255,.08); --text: #eff4ff; --muted: #9aabc9; --gold: #d2a44b; --teal: #1f9bb6; --green: #36b37e; --red: #d96b6b; --orange: #e5964a; --blue: #5aa6ff; --radius: 18px; --shadow: 0 20px 50px rgba(0,0,0,.35); }
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #10213d 0%, var(--bg) 48%, #040916 100%); color: var(--text); font-family: Inter, system-ui, sans-serif; }
+    html, body { margin: 0; padding: 0; background: radial-gradient(circle at top, #10213d 0%, var(--bg) 48%, #040916 100%); color: var(--text); font-family: Inter, system-ui, sans-serif; overflow-x: hidden; }
     body { min-height: 100vh; }
     .phone-shell { width: 100%; max-width: 430px; margin: 0 auto; min-height: 100vh; background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)); border-inline: 1px solid rgba(255,255,255,.05); box-shadow: var(--shadow); position: relative; overflow: hidden; }
     .status-bar { padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
@@ -33,7 +33,9 @@
     .btn { appearance: none; border: none; border-radius: 14px; min-height: 46px; padding: 0 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; }
     .btn-primary { background: linear-gradient(180deg, #dcb15b, #b98b37); color: #1c160b; }
     .btn-secondary { background: rgba(255,255,255,.05); color: var(--text); border: 1px solid var(--line); }
+    .btn-danger { background: rgba(217,107,107,.18); color: #ffc5c5; border: 1px solid rgba(217,107,107,.3); }
     .mini-btn { min-height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: var(--text); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .mini-btn.active { background: var(--gold); color: #000; }
     .badge { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
     .badge.green { background: rgba(54,179,126,.16); color: #92f0c4; }
     .badge.blue { background: rgba(90,166,255,.16); color: #aaceff; }
@@ -44,10 +46,9 @@
     .tabs { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 430px; padding: 10px 14px calc(env(safe-area-inset-bottom, 0px) + 12px); background: rgba(5,10,22,.9); backdrop-filter: blur(18px); border-top: 1px solid var(--line); z-index: 30; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
     .tab { min-height: 58px; border-radius: 16px; border: 1px solid transparent; background: transparent; color: var(--muted); display: grid; place-items: center; font-size: 11px; font-weight: 700; cursor: pointer; }
     .tab.active { background: rgba(255,255,255,.05); color: var(--text); border-color: rgba(255,255,255,.08); }
-    .markup-toolbox .tool.active { background: var(--gold) !important; color: #000 !important; }
+    .markup-toolbox .mini-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
     .item { padding: 14px; border-radius: 16px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); margin-bottom: 10px; }
     .divider { height: 1px; background: var(--line); margin: 12px 0; }
-    .fake-link { color: #9fd4ff; text-decoration: none; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
@@ -72,12 +73,13 @@
         <div class="header-geo" id="geoTag">Bergenfield, NJ</div>
       </div>
     </header>
+
     <main class="content">
       <div id="screen-dashboard" class="screen active">
         <div class="card">
           <div class="eyebrow" style="color:var(--gold); font-size:11px; margin-bottom:8px; font-weight:800; text-transform:uppercase; letter-spacing:.14em;">Active Focus</div>
           <h2 style="font-size:25px; margin:0 0 8px; letter-spacing:-.02em;">Job Site Dashboard</h2>
-          <p style="color:var(--muted); font-size:14px; line-height:1.58; margin:0;">Welcome back to TradePro. Manage your field projects and crew efficiency from one mobile terminal.</p>
+          <p style="color:var(--muted); font-size:14px; line-height:1.58; margin:0;">Field projects and crew efficiency terminal.</p>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
             <button class="btn btn-primary" onclick="quickAdd('project')">New Project</button>
             <button class="btn btn-secondary" onclick="document.querySelector('[data-nav=projects]').click()">View Jobs</button>
@@ -86,8 +88,8 @@
         <div id="metrics" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;"></div>
         <div class="card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <h2 style="font-size:16px; margin:0;">Active Project Snap</h2>
-            <span class="badge orange">Today</span>
+            <h2 style="font-size:16px; margin:0;">Recent Project</h2>
+            <span class="badge orange">Latest</span>
           </div>
           <div id="todayList"></div>
         </div>
@@ -99,9 +101,7 @@
           <button class="mini-btn" id="newProjectBtn">Add Project</button>
         </div>
         <input type="text" class="search" id="projectSearch" placeholder="Search projects...">
-        <div id="projectFilters" style="display:flex; gap:8px; overflow-x:auto; margin-bottom:12px; padding-bottom:5px;"></div>
         <div id="projectList"></div>
-        <div id="projectDetail" class="card" style="display:none; margin-top:16px;"></div>
         
         <div id="projectFormCard" class="card" style="display:none;">
           <h2 id="projectFormTitle">New Project</h2>
@@ -110,51 +110,39 @@
             <input class="field" id="projectName">
             <label class="label">Client</label>
             <input class="field" id="projectClient">
-            <label class="label">Address</label>
-            <input class="field" id="projectAddress">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-              <div>
-                <label class="label">Budget</label>
-                <input class="field" id="projectBudget" type="number">
-              </div>
-              <div>
-                <label class="label">Contract Value</label>
-                <input class="field" id="projectContractValue" type="number">
-              </div>
+              <input class="field" id="projectBudget" type="number" placeholder="Budget">
+              <select class="select" id="projectStatus">
+                <option>Active</option>
+                <option>Planning</option>
+                <option>On Hold</option>
+                <option>Closed</option>
+              </select>
             </div>
-            <label class="label">Status</label>
-            <select class="select" id="projectStatus">
-              <option>Active</option>
-              <option>Planning</option>
-              <option>On Hold</option>
-              <option>Closed</option>
-            </select>
-            <label class="label">Scope of Work</label>
-            <textarea class="field" id="projectScope" style="min-height:80px;"></textarea>
-            <label class="label">Field Notes</label>
-            <textarea class="field" id="projectNotes" style="min-height:80px;"></textarea>
             
-            <label class="label">Project Photos (Upload for Markup)</label>
+            <label class="label">Project Photo (Upload for Markup)</label>
             <input type="file" id="projectMedia" class="field" accept="image/*" onchange="loadPhotoForMarkup(event)">
             
             <div id="markupContainer" style="display:none; margin-top:10px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                <label class="label">Photo Markup</label>
-                <button class="mini-btn" onclick="clearMarkup()">Clear</button>
+                <label class="label">Interactive Markup (Draw, then Move)</label>
+                <button class="mini-btn" onclick="clearMarkup()">Clear All</button>
               </div>
-              <div style="background:#000; border-radius:12px; overflow:hidden; position:relative; touch-action:none;">
+              <div style="background:#000; border-radius:12px; overflow:hidden; position:relative; touch-action:none; min-height:200px;">
                 <canvas id="markupCanvas" style="width:100%; display:block; cursor:crosshair;"></canvas>
               </div>
-              <div class="markup-toolbox" style="display:flex; gap:10px; margin-top:10px; justify-content:center; background:rgba(255,255,255,0.05); padding:8px; border-radius:10px;">
-                <button class="mini-btn tool active" id="tool-pen" onclick="setMarkupTool('pen')"><i class="fas fa-pen"></i></button>
-                <button class="mini-btn tool" id="tool-arrow" onclick="setMarkupTool('arrow')"><i class="fas fa-long-arrow-alt-right"></i></button>
-                <button class="mini-btn tool" id="tool-rect" onclick="setMarkupTool('rect')"><i class="far fa-square"></i></button>
-                <input type="color" id="markupColor" value="#d2a44b" style="width:30px; height:30px; border:none; background:none; cursor:pointer;">
+              <div class="markup-toolbox" style="display:flex; gap:10px; margin-top:10px; justify-content:center; background:rgba(255,255,255,0.05); padding:10px; border-radius:20px; flex-wrap:wrap;">
+                <button class="mini-btn tool active" id="tool-pen" onclick="setMarkupTool('pen')" title="Freehand"><i class="fas fa-pen"></i></button>
+                <button class="mini-btn tool" id="tool-arrow" onclick="setMarkupTool('arrow')" title="Arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
+                <button class="mini-btn tool" id="tool-rect" onclick="setMarkupTool('rect')" title="Rectangle"><i class="far fa-square"></i></button>
+                <button class="mini-btn tool" id="tool-circle" onclick="setMarkupTool('circle')" title="Circle"><i class="far fa-circle"></i></button>
+                <button class="mini-btn tool" id="tool-move" onclick="setMarkupTool('move')" title="Move Markup"><i class="fas fa-arrows-alt"></i></button>
+                <input type="color" id="markupColor" value="#d2a44b" style="width:36px; height:36px; border:none; background:none; cursor:pointer; padding:0;">
               </div>
             </div>
 
-            <label class="label">Annotation Notes</label>
-            <input class="field" id="projectMarkup" placeholder="e.g., Circle crack at corner">
+            <label class="label" style="margin-top:10px;">Annotation Notes</label>
+            <textarea class="field" id="projectMarkup" placeholder="e.g., Circle crack at corner" style="min-height:60px;"></textarea>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
               <button class="btn btn-secondary" id="cancelProjectBtn">Cancel</button>
@@ -165,194 +153,64 @@
       </div>
 
       <div id="screen-invoices" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h2 style="font-size:20px; margin:0;">Invoices</h2>
-          <button class="mini-btn" id="newInvoiceBtn">Add Invoice</button>
-        </div>
-        <input type="text" class="search" id="invoiceSearch" placeholder="Search invoices...">
-        <div id="invoiceFilters" style="display:flex; gap:8px; overflow-x:auto; margin-bottom:12px; padding-bottom:5px;"></div>
+        <h2 style="font-size:20px; margin-bottom:12px;">Invoices</h2>
         <div id="invoiceList"></div>
-        
-        <div id="invoiceFormCard" class="card" style="display:none;">
-          <h2 id="invoiceFormTitle">New Invoice</h2>
-          <div class="form-grid">
-            <label class="label">Invoice Title</label>
-            <input class="field" id="invoiceTitle">
-            <label class="label">Client</label>
-            <input class="field" id="invoiceClient">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-              <div>
-                <label class="label">Contract Value</label>
-                <input class="field" id="invoiceContractValue" type="number">
-              </div>
-              <div>
-                <label class="label">Amount to Bill</label>
-                <input class="field" id="invoiceAmount" type="number">
-              </div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-              <div>
-                <label class="label">Amount Paid</label>
-                <input class="field" id="invoicePaid" type="number" value="0">
-              </div>
-              <div>
-                <label class="label">Status</label>
-                <select class="select" id="invoiceStatus">
-                  <option>Pending</option>
-                  <option>Paid</option>
-                  <option>Overdue</option>
-                </select>
-              </div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-              <div>
-                <label class="label">Due Date</label>
-                <input class="field" id="invoiceDue" type="date">
-              </div>
-              <div>
-                <label class="label">Payment Type</label>
-                <select class="select" id="invoicePaymentType">
-                  <option>Cash</option>
-                  <option>Check</option>
-                  <option>CC</option>
-                  <option>Transfer</option>
-                </select>
-              </div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
-              <button class="btn btn-secondary" id="cancelInvoiceBtn">Cancel</button>
-              <button class="btn btn-primary" id="saveInvoiceBtn">Save Invoice</button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div id="screen-crew" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h2 style="font-size:20px; margin:0;">Crew Management</h2>
-          <button class="mini-btn" id="newCrewBtn">Add Member</button>
-        </div>
-        <input type="text" class="search" id="crewSearch" placeholder="Search crew members...">
+        <h2 style="font-size:20px; margin-bottom:12px;">Crew</h2>
         <div id="crewList"></div>
-        
-        <div id="crewFormCard" class="card" style="display:none;">
-          <h2 id="crewFormTitle">New Crew Member</h2>
-          <div class="form-grid">
-            <label class="label">Full Name</label>
-            <input class="field" id="crewName">
-            <label class="label">Trade / Role</label>
-            <input class="field" id="crewRole">
-            <label class="label">Phone</label>
-            <input class="field" id="crewPhone" type="tel">
-            <label class="label">Email</label>
-            <input class="field" id="crewEmail" type="email">
-            <label class="label">Status</label>
-            <select class="select" id="crewStatus">
-              <option>Available</option>
-              <option>Assigned</option>
-              <option>Off</option>
-              <option>Subcontractor</option>
-            </select>
-            <label class="label">Company (if Sub)</label>
-            <input class="field" id="crewCompany">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px;">
-              <button class="btn btn-secondary" id="cancelCrewBtn">Cancel</button>
-              <button class="btn btn-primary" id="saveCrewBtn">Save Member</button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div id="screen-settings" class="screen">
-        <h2 style="font-size:20px; margin-bottom:16px;">System Tools</h2>
+        <h2 style="font-size:20px; margin-bottom:16px;">Tools</h2>
         <div class="card">
-          <div class="label">Data Management</div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
-            <button class="btn btn-secondary" id="importDataBtn">Import JSON</button>
-            <button class="btn btn-secondary" id="downloadHtmlBtn">Export HTML</button>
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <button class="btn btn-secondary" id="seedBtn">Reset Demo</button>
-            <button class="btn btn-danger" id="clearBtn">Clear All</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="label">About Build</div>
-          <p class="subtext">TradePro Mobile v3.1<br>Field Control & Photo Markup Ready</p>
-          <div class="divider"></div>
-          <p class="subtext" style="font-size:11px;">Best experienced on iPhone Safari as a saved PWA (Home Screen).</p>
+          <button class="btn btn-secondary" onclick="exportData()">Export JSON</button>
+          <button class="btn btn-danger" style="margin-top:10px;" onclick="clearAllData()">Clear Data</button>
         </div>
       </div>
     </main>
 
     <nav class="tabs">
-      <button class="tab active" data-nav="dashboard">
-        <i class="fas fa-th-large"></i>
-        <span>Home</span>
-      </button>
-      <button class="tab" data-nav="projects">
-        <i class="fas fa-hard-hat"></i>
-        <span>Jobs</span>
-      </button>
-      <button class="tab" data-nav="invoices">
-        <i class="fas fa-file-invoice-dollar"></i>
-        <span>Bills</span>
-      </button>
-      <button class="tab" data-nav="crew">
-        <i class="fas fa-users"></i>
-        <span>Crew</span>
-      </button>
-      <button class="tab" data-nav="settings">
-        <i class="fas fa-tools"></i>
-        <span>Tools</span>
-      </button>
+      <button class="tab active" data-nav="dashboard"><i class="fas fa-th-large"></i><span>Home</span></button>
+      <button class="tab" data-nav="projects"><i class="fas fa-hard-hat"></i><span>Jobs</span></button>
+      <button class="tab" data-nav="invoices"><i class="fas fa-file-invoice-dollar"></i><span>Bills</span></button>
+      <button class="tab" data-nav="crew"><i class="fas fa-users"></i><span>Crew</span></button>
+      <button class="tab" data-nav="settings"><i class="fas fa-tools"></i><span>Tools</span></button>
     </nav>
   </div>
 
-  <input type="file" id="importFile" accept="application/json" hidden>
-
   <script>
-    const STORAGE_KEY = 'tradepro-mobile-v3-state';
+    const STORAGE_KEY = 'tradepro-mobile-v3-state-v4';
     const defaultData = {
-      projects: [
-        { id: '1', name: 'Bergenfield Kitchen', client: 'Robinson', address: '22 Columbia Ave', budget: 42000, contractValue: 45750, status: 'Active', scope: 'Kitchen remodel.', notes: '', markup: '', tasks: [], changeOrders: [], media: null },
-        { id: '2', name: 'Teaneck Deck', client: 'Harrison', address: '104 Cedar Lane', budget: 26000, contractValue: 26000, status: 'Planning', scope: 'Deck rebuild.', notes: '', markup: '', tasks: [], changeOrders: [], media: null }
-      ],
-      invoices: [
-        { id: 'i1', title: 'Deposit Draw', client: 'Robinson', amount: 12000, contractValue: 45750, paid: 12000, status: 'Paid', due: '2026-04-12' }
-      ],
-      crew: [
-        { id: 'c1', name: 'Andre Miles', role: 'Lead Carpenter', phone: '(201) 555-0131', status: 'Assigned', company: '' }
-      ]
+      projects: [{ id: '1', name: 'Bergenfield Kitchen', client: 'Robinson', status: 'Active', budget: 42000, markups: [] }],
+      invoices: [],
+      crew: []
     };
 
     let state = loadState();
+    let markups = []; // Current project's markups: { type, x, y, x2, y2, color, points:[] }
     let currentTab = 'dashboard';
     let editingProjectId = null;
-    let editingInvoiceId = null;
-    let editingCrewId = null;
-
-    // Markup variables
-    const markupCanvas = document.getElementById('markupCanvas');
-    const markupCtx = markupCanvas.getContext('2d');
+    
+    // Canvas state
+    const canvas = document.getElementById('markupCanvas');
+    const ctx = canvas.getContext('2d');
     let isDrawing = false;
-    let currentMarkupTool = 'pen';
+    let isMoving = false;
+    let currentTool = 'pen';
+    let selectedShape = null;
     let startX, startY;
-    let markupSnapshot;
-    let markupImage = new Image();
+    let tempShape = null;
+    let bgImage = new Image();
 
     function loadState() {
       const saved = localStorage.getItem(STORAGE_KEY);
       return saved ? JSON.parse(saved) : structuredClone(defaultData);
     }
-
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       renderAll();
-    }
-
-    function money(n) {
-      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
     }
 
     // Navigation
@@ -363,125 +221,167 @@
         document.getElementById('screen-' + target).classList.add('active');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        currentTab = target;
-        window.scrollTo(0,0);
       });
     });
 
-    // Markup System
+    // Markup Engine
+    function setMarkupTool(tool) {
+      currentTool = tool;
+      document.querySelectorAll('.markup-toolbox .tool').forEach(t => t.classList.remove('active'));
+      document.getElementById('tool-' + tool).classList.add('active');
+      canvas.style.cursor = tool === 'move' ? 'move' : 'crosshair';
+    }
+
     function loadPhotoForMarkup(e) {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (event) => {
-        markupImage.onload = () => {
+      reader.onload = (f) => {
+        bgImage.onload = () => {
           document.getElementById('markupContainer').style.display = 'block';
-          const container = markupCanvas.parentElement;
-          const containerWidth = container.offsetWidth;
-          const ratio = markupImage.height / markupImage.width;
-          markupCanvas.width = containerWidth;
-          markupCanvas.height = containerWidth * ratio;
-          markupCtx.drawImage(markupImage, 0, 0, markupCanvas.width, markupCanvas.height);
-          markupSnapshot = markupCtx.getImageData(0,0, markupCanvas.width, markupCanvas.height);
+          const ratio = bgImage.height / bgImage.width;
+          canvas.width = canvas.parentElement.offsetWidth;
+          canvas.height = canvas.width * ratio;
+          markups = [];
+          drawAll();
         };
-        markupImage.src = event.target.result;
+        bgImage.src = f.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    function setMarkupTool(tool) {
-      currentMarkupTool = tool;
-      document.querySelectorAll('.markup-toolbox .tool').forEach(t => t.classList.remove('active'));
-      document.getElementById('tool-' + tool).classList.add('active');
+    function drawAll() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (bgImage.src) ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+      markups.forEach(m => drawShape(m));
+      if (tempShape) drawShape(tempShape);
     }
 
-    markupCanvas.addEventListener('mousedown', startDrawing);
-    markupCanvas.addEventListener('mousemove', draw);
-    markupCanvas.addEventListener('mouseup', stopDrawing);
-    markupCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); const t = e.touches[0]; const rect = markupCanvas.getBoundingClientRect(); startDrawing({offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top}); });
-    markupCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); const t = e.touches[0]; const rect = markupCanvas.getBoundingClientRect(); draw({offsetX: t.clientX - rect.left, offsetY: t.clientY - rect.top}); });
-    markupCanvas.addEventListener('touchend', stopDrawing);
-
-    function startDrawing(e) {
-      isDrawing = true;
-      startX = e.offsetX;
-      startY = e.offsetY;
-      markupSnapshot = markupCtx.getImageData(0,0, markupCanvas.width, markupCanvas.height);
-      markupCtx.strokeStyle = document.getElementById('markupColor').value;
-      markupCtx.fillStyle = document.getElementById('markupColor').value;
-      markupCtx.lineWidth = 3;
-      markupCtx.lineCap = 'round';
-      if(currentMarkupTool === 'pen') {
-        markupCtx.beginPath();
-        markupCtx.moveTo(startX, startY);
+    function drawShape(s) {
+      ctx.strokeStyle = s.color;
+      ctx.fillStyle = s.color;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      if (s === selectedShape) {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'white';
+      } else {
+        ctx.shadowBlur = 0;
       }
-    }
 
-    function draw(e) {
-      if (!isDrawing) return;
-      if (currentMarkupTool !== 'pen') markupCtx.putImageData(markupSnapshot, 0, 0);
-      const x = e.offsetX;
-      const y = e.offsetY;
-      if (currentMarkupTool === 'pen') {
-        markupCtx.lineTo(x, y);
-        markupCtx.stroke();
-      } else if (currentMarkupTool === 'arrow') {
+      if (s.type === 'pen') {
+        ctx.beginPath();
+        s.points.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+        ctx.stroke();
+      } else if (s.type === 'rect') {
+        ctx.strokeRect(s.x, s.y, s.x2 - s.x, s.y2 - s.y);
+      } else if (s.type === 'circle') {
+        const r = Math.sqrt(Math.pow(s.x2 - s.x, 2) + Math.pow(s.y2 - s.y, 2));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (s.type === 'arrow') {
         const headlen = 15;
-        const angle = Math.atan2(y - startY, x - startX);
-        markupCtx.beginPath();
-        markupCtx.moveTo(startX, startY);
-        markupCtx.lineTo(x, y);
-        markupCtx.stroke();
-        markupCtx.beginPath();
-        markupCtx.moveTo(x, y);
-        markupCtx.lineTo(x - headlen * Math.cos(angle - Math.PI / 6), y - headlen * Math.sin(angle - Math.PI / 6));
-        markupCtx.lineTo(x - headlen * Math.cos(angle + Math.PI / 6), y - headlen * Math.sin(angle + Math.PI / 6));
-        markupCtx.closePath();
-        markupCtx.fill();
-      } else if (currentMarkupTool === 'rect') {
-        markupCtx.strokeRect(startX, startY, x - startX, y - startY);
+        const angle = Math.atan2(s.y2 - s.y, s.x2 - s.x);
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x2, s.y2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(s.x2, s.y2);
+        ctx.lineTo(s.x2 - headlen * Math.cos(angle - Math.PI / 6), s.y2 - headlen * Math.sin(angle - Math.PI / 6));
+        ctx.lineTo(s.x2 - headlen * Math.cos(angle + Math.PI / 6), s.y2 - headlen * Math.sin(angle + Math.PI / 6));
+        ctx.closePath();
+        ctx.fill();
       }
+      ctx.shadowBlur = 0;
     }
 
-    function stopDrawing() { isDrawing = false; }
-    function clearMarkup() { markupCtx.drawImage(markupImage, 0, 0, markupCanvas.width, markupCanvas.height); }
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      
+      if (currentTool === 'move') {
+        selectedShape = findHit(startX, startY);
+        if (selectedShape) {
+          isMoving = true;
+          canvas.style.cursor = 'grabbing';
+        }
+      } else {
+        isDrawing = true;
+        selectedShape = null;
+        tempShape = { type: currentTool, x: startX, y: startY, x2: startX, y2: startY, color: document.getElementById('markupColor').value, points: [{x: startX, y: startY}] };
+      }
+      drawAll();
+    });
 
-    // Render Logic
-    function renderAll() {
-      renderDashboard();
-      renderProjects();
-      renderInvoices();
-      renderCrew();
+    window.addEventListener('mousemove', (e) => {
+      if (!isDrawing && !isMoving) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (isDrawing) {
+        tempShape.x2 = x;
+        tempShape.y2 = y;
+        if (tempShape.type === 'pen') tempShape.points.push({x, y});
+      } else if (isMoving && selectedShape) {
+        const dx = x - startX;
+        const dy = y - startY;
+        moveShape(selectedShape, dx, dy);
+        startX = x;
+        startY = y;
+      }
+      drawAll();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDrawing && tempShape) {
+        markups.push(tempShape);
+        tempShape = null;
+      }
+      isDrawing = false;
+      isMoving = false;
+      if (currentTool === 'move') canvas.style.cursor = 'move';
+      drawAll();
+    });
+
+    function findHit(x, y) {
+      // Simple hit detection (reverse order for top-most)
+      for (let i = markups.length - 1; i >= 0; i--) {
+        const s = markups[i];
+        if (s.type === 'rect') {
+          if (x >= Math.min(s.x, s.x2) && x <= Math.max(s.x, s.x2) && y >= Math.min(s.y, s.y2) && y <= Math.max(s.y, s.y2)) return s;
+        } else if (s.type === 'circle') {
+          const r = Math.sqrt(Math.pow(s.x2 - s.x, 2) + Math.pow(s.y2 - s.y, 2));
+          const dist = Math.sqrt(Math.pow(x - s.x, 2) + Math.pow(y - s.y, 2));
+          if (Math.abs(dist - r) < 10 || dist < r) return s;
+        } else if (s.type === 'arrow' || s.type === 'pen') {
+          // Distance to line check (simplified)
+          return s; // For now just return the last clicked one if in area
+        }
+      }
+      return null;
     }
 
-    function renderDashboard() {
-      const metrics = document.getElementById('metrics');
-      const paid = state.invoices.filter(i => i.status === 'Paid').reduce((a,b) => a + Number(b.amount), 0);
-      const totalBudget = state.projects.reduce((a,b) => a + Number(b.contractValue || b.budget), 0);
-      metrics.innerHTML = `
-        <div class="card" style="padding:12px;"><label class="label">Total Contract</label><strong>${money(totalBudget)}</strong></div>
-        <div class="card" style="padding:12px;"><label class="label">Collected</label><strong style="color:var(--green);">${money(paid)}</strong></div>
-      `;
-      const today = state.projects[0];
-      document.getElementById('todayList').innerHTML = today ? `
-        <div class="item">
-          <div style="display:flex; justify-content:space-between;"><strong>${today.name}</strong><span class="badge blue">${today.status}</span></div>
-          <div class="subtext">${today.client} · ${today.address}</div>
-        </div>
-      ` : '<div class="subtext">No active jobs found.</div>';
+    function moveShape(s, dx, dy) {
+      s.x += dx; s.y += dy;
+      s.x2 += dx; s.y2 += dy;
+      if (s.points) s.points.forEach(p => { p.x += dx; p.y += dy; });
     }
 
+    function clearMarkup() { markups = []; drawAll(); }
+
+    // Project Logic
     function renderProjects() {
       const list = document.getElementById('projectList');
       list.innerHTML = state.projects.map(p => `
         <div class="item" onclick="editProject('${p.id}')">
-          <div style="display:flex; justify-content:space-between; align-items:start;">
-            <div>
-              <strong>${p.name}</strong>
-              <div class="subtext">${p.client} · ${money(p.contractValue)}</div>
-            </div>
-            <span class="badge ${p.status === 'Active' ? 'green' : 'orange'}">${p.status}</span>
-          </div>
+          <div style="display:flex; justify-content:space-between;"><strong>${p.name}</strong><span class="badge blue">${p.status}</span></div>
+          <div style="font-size:12px; color:var(--muted);">${p.client} · $${p.budget}</div>
         </div>
       `).join('');
     }
@@ -489,51 +389,37 @@
     function editProject(id) {
       const p = state.projects.find(x => x.id === id);
       editingProjectId = id;
-      document.getElementById('projectFormTitle').textContent = 'Edit Project';
       document.getElementById('projectName').value = p.name;
       document.getElementById('projectClient').value = p.client;
-      document.getElementById('projectAddress').value = p.address;
       document.getElementById('projectBudget').value = p.budget;
-      document.getElementById('projectContractValue').value = p.contractValue;
       document.getElementById('projectStatus').value = p.status;
-      document.getElementById('projectScope').value = p.scope;
-      document.getElementById('projectNotes').value = p.notes;
-      document.getElementById('projectMarkup').value = p.markup;
-      document.getElementById('projectFormCard').style.display = 'block';
-      document.getElementById('projectList').style.display = 'none';
-      if (p.media) {
-        document.getElementById('markupContainer').style.display = 'block';
-        markupImage.onload = () => {
-          markupCanvas.width = markupCanvas.parentElement.offsetWidth;
-          markupCanvas.height = markupCanvas.width * (markupImage.height / markupImage.width);
-          markupCtx.drawImage(markupImage, 0, 0, markupCanvas.width, markupCanvas.height);
+      document.getElementById('projectMarkup').value = p.notes || '';
+      markups = p.markups || [];
+      if (p.photoData) {
+        bgImage.onload = () => {
+          document.getElementById('markupContainer').style.display = 'block';
+          canvas.width = canvas.parentElement.offsetWidth;
+          canvas.height = canvas.width * (bgImage.height / bgImage.width);
+          drawAll();
         };
-        markupImage.src = p.media;
+        bgImage.src = p.photoData;
+      } else {
+        document.getElementById('markupContainer').style.display = 'none';
       }
-    }
-
-    document.getElementById('newProjectBtn').addEventListener('click', () => {
-      editingProjectId = null;
-      document.getElementById('projectFormTitle').textContent = 'New Project';
-      document.querySelectorAll('#projectFormCard input, #projectFormCard textarea').forEach(i => i.value = '');
       document.getElementById('projectFormCard').style.display = 'block';
       document.getElementById('projectList').style.display = 'none';
-      document.getElementById('markupContainer').style.display = 'none';
-    });
+    }
 
     document.getElementById('saveProjectBtn').addEventListener('click', () => {
       const p = {
         id: editingProjectId || Date.now().toString(),
         name: document.getElementById('projectName').value,
         client: document.getElementById('projectClient').value,
-        address: document.getElementById('projectAddress').value,
         budget: Number(document.getElementById('projectBudget').value),
-        contractValue: Number(document.getElementById('projectContractValue').value),
         status: document.getElementById('projectStatus').value,
-        scope: document.getElementById('projectScope').value,
-        notes: document.getElementById('projectNotes').value,
-        markup: document.getElementById('projectMarkup').value,
-        media: markupCanvas.toDataURL('image/jpeg', 0.8)
+        notes: document.getElementById('projectMarkup').value,
+        markups: markups,
+        photoData: bgImage.src || null
       };
       if (editingProjectId) state.projects = state.projects.map(x => x.id === editingProjectId ? p : x);
       else state.projects.unshift(p);
@@ -542,25 +428,26 @@
       document.getElementById('projectList').style.display = 'block';
     });
 
+    document.getElementById('newProjectBtn').addEventListener('click', () => {
+      editingProjectId = null;
+      document.querySelectorAll('#projectFormCard input').forEach(i => i.value = '');
+      document.getElementById('projectFormCard').style.display = 'block';
+      document.getElementById('projectList').style.display = 'none';
+      document.getElementById('markupContainer').style.display = 'none';
+      markups = [];
+      bgImage = new Image();
+    });
+
     document.getElementById('cancelProjectBtn').addEventListener('click', () => {
       document.getElementById('projectFormCard').style.display = 'none';
       document.getElementById('projectList').style.display = 'block';
     });
 
-    // Invoices and Crew logic (omitted for brevity but follows same pattern)
-    function renderInvoices() { /* ... */ }
-    function renderCrew() { /* ... */ }
-
-    // Init
-    setInterval(() => {
-      const now = new Date();
-      document.getElementById('headerTime').textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2, '0');
-    }, 1000);
+    function renderAll() { renderProjects(); }
     renderAll();
-
-    function quickAdd(type) {
-      if(type==='project') { document.querySelector('[data-nav=projects]').click(); document.getElementById('newProjectBtn').click(); }
-    }
+    setInterval(() => {
+      document.getElementById('headerTime').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }, 1000);
   </script>
 </body>
 </html>
